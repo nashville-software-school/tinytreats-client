@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { productService } from '../../services/api';
+import { useCart } from '../../hooks/useCart';
 import ProductCard from './ProductCard';
 import {
   Heading,
@@ -10,9 +11,10 @@ import {
   Flex,
   Card
 } from '@radix-ui/themes';
-import { MagnifyingGlassIcon, ReloadIcon, UpdateIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, UpdateIcon } from '@radix-ui/react-icons';
 
 function ProductList({ onAddToCart }) {
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -87,6 +89,11 @@ function ProductList({ onAddToCart }) {
     setSearchTerm(e.target.value);
   };
 
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    alert(`Added ${product.name} to cart!`);
+  };
+
   // Filter products based on search term
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -112,25 +119,20 @@ function ProductList({ onAddToCart }) {
     );
   }
 
-  // For debugging
-  console.log("Products:", products);
-
   return (
     <Box className="product-list-container">
       <Flex className="product-list-header" justify="between" align="center" mb="6">
         <Heading size="5" as="h2">Browse Our Treats</Heading>
 
         <Box className="search-container" style={{ maxWidth: '300px', width: '100%' }}>
-          <TextField.Root>
+          <TextField.Root
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={handleSearchChange}>
             <TextField.Slot>
               <MagnifyingGlassIcon height="16" width="16" />
             </TextField.Slot>
-            <TextField.Input
-              type="text"
-              placeholder="Search products..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
           </TextField.Root>
         </Box>
       </Flex>
@@ -149,7 +151,7 @@ function ProductList({ onAddToCart }) {
             <ProductCard
               key={product.id}
               product={product}
-              onAddToCart={onAddToCart}
+              onAddToCart={handleAddToCart}
             />
           ))}
         </Grid>

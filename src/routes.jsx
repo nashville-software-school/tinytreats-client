@@ -14,11 +14,12 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import CartPage from './pages/CartPage';
 import OrdersPage from './pages/OrdersPage';
 import NotFoundPage from './pages/NotFoundPage';
-import TestPage from './pages/TestPage';
 import SimplePage from './pages/SimplePage';
-import RadixDemoPage from './pages/RadixDemoPage';
 import SimpleProductsPage from './pages/SimpleProductsPage';
 import AdminUsersPage from './pages/AdminUsersPage';
+import CreateProductPage from './pages/CreateProductPage';
+import EditProductPage from './pages/EditProductPage';
+import ProductList from './components/products/ProductList.jsx';
 
 // Protected route component
 function ProtectedRoute({ children, requiredRoles = [] }) {
@@ -84,11 +85,27 @@ export const router = createBrowserRouter([
       },
       {
         path: '/productlist',
-        element: <SimpleProductsPage />
+        element: <ProductList />
       },
       {
         path: '/productlist/:id',
         element: <ProductDetailPage />
+      },
+      {
+        path: '/products/create',
+        element: (
+          <ProtectedRoute requiredRoles={['Admin', 'Baker']}>
+            <CreateProductPage />
+          </ProtectedRoute>
+        )
+      },
+      {
+        path: '/products/edit/:id',
+        element: (
+          <ProtectedRoute requiredRoles={['Admin', 'Baker']}>
+            <EditProductPage />
+          </ProtectedRoute>
+        )
       },
       {
         path: '/cart',

@@ -20,18 +20,21 @@ import {
   PlusIcon,
   MinusIcon,
   BackpackIcon,
-  ReloadIcon
+  ReloadIcon,
+  TrashIcon,
+  Pencil1Icon
 } from '@radix-ui/react-icons';
 
 function ProductDetail({ onAddToCart }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin, isBaker } = useAuth();
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     async function fetchProduct() {
@@ -71,6 +74,23 @@ function ProductDetail({ onAddToCart }) {
     if (product) {
       onAddToCart({ ...product, quantity });
       navigate('/cart');
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (!window.confirm('Are you sure you want to delete this product?')) {
+      return;
+    }
+
+    try {
+      setDeleteLoading(true);
+      await productService.deleteProduct(id);
+      navigate('/productlist');
+    } catch (err) {
+      console.error('Error deleting product:', err);
+      setError('Failed to delete product. Please try again later.');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -175,6 +195,35 @@ function ProductDetail({ onAddToCart }) {
                   <BackpackIcon />
                   Add to Cart
                 </Button>
+              </Box>
+            )}
+
+            {(isAdmin || isBaker) && (
+              <Box mb="4">
+                <Flex direction="column" gap="2">
+                  <Button
+                    variant="soft"
+                    color="blue"
+                    size="3"
+                    onClick={() => navigate(`/products/edit/${id}`)}
+                    style={{ width: '100%' }}
+                  >
+                    <Pencil1Icon />
+                    Edit Product
+                  </Button>
+
+                  <Button
+                    variant="soft"
+                    color="red"
+                    size="3"
+                    onClick={handleDeleteProduct}
+                    disabled={deleteLoading}
+                    style={{ width: '100%' }}
+                  >
+                    <TrashIcon />
+                    {deleteLoading ? 'Removing...' : 'Remove Product'}
+                  </Button>
+                </Flex>
               </Box>
             )}
 
